@@ -1,0 +1,20 @@
+
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src'
+    }
+  }
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile 'org.postgresql:postgresql:42.2.2.jre7'
+  compile 'com.google.code.gson:gson:2.8.2'
+}
