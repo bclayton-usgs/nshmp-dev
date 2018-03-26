@@ -16,5 +16,7 @@ repositories {
 
 dependencies {
   compile 'org.postgresql:postgresql:42.2.2.jre7'
-  compile 'com.google.code.gson:gson:2.8.2'
+  compile 'com.vividsolutions:jts-core:1.14.0'
+  compile 'com.google.guava:guava:24.1-jre'
+  compile project(':nshmp-haz')
 }
