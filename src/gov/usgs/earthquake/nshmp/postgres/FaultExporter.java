@@ -1,17 +1,26 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres;
+
+import static gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.google.common.collect.ImmutableList;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import gov.usgs.earthquake.nshmp.geo.LocationList;
 import gov.usgs.earthquake.nshmp.internal.UsRegion;
-
-import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.DeformationModel;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.DeformationModelList;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.SourceGeometry.FaultGeometry;
+import gov.usgs.earthquake.nshmp.postgres.sources.FaultSource;
+import gov.usgs.earthquake.nshmp.postgres.sources.FaultSourceSet;
+import gov.usgs.earthquake.nshmp.postgres.sources.FaultXMLExporter;
+import gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute;
 
 /**
  * Using {@link ModelParameters}, {@link Postgres}, {@link SourceAttribute},
@@ -35,7 +44,8 @@ public class FaultExporter {
      
       System.out.println("Creating XML for: ");
       for (String stateAbbrev : distinctStates) {
-        System.out.println(UsRegion.valueOf(stateAbbrev));
+        String primaryState = UsRegion.valueOf(stateAbbrev).toString();
+        System.out.println(primaryState);
         
         String sql = "select " + getSqlSelectFields() +
             " from " + postgres.table +
@@ -43,30 +53,52 @@ public class FaultExporter {
             " order by " + NAME + " asc;";
         
         ResultSet result = postgres.query(sql);
-        ModelParameters.Builder modelBuilder = ModelParameters.builder();
-        
-        Settings settings = Settings.westernUS();
-        modelBuilder.defaultMfds(settings.defaultMfds)
-            .magUncertainties(settings.magUncertainties)
-            .ruptureScaling(settings.ruptureScaling)
-            .stateAbbrev(stateAbbrev);
+        ImmutableList.Builder<FaultSource> sourceListBuilder = ImmutableList.builder();
         
         while (result.next()) {
+          /* Get locationList from well know text */
           String faultTraceWkt = result.getString(FAULT_TRACE.toString());
-          String faultTraceString = wktToCoordinates(faultTraceWkt);
-          modelBuilder.addBirdRate(result.getDouble(BIRD_DISPLACEMENT_RATE.toString()))
-              .addDepth(result.getDouble(UPPER_DEPTH.toString()))
-              .addDip(result.getDouble(DIP.toString()))
-              .addFaultTrace(faultTraceString)
-              .addGeoRate(result.getDouble(GEO_DISPLACEMENT_RATE.toString()))
-              .addName(result.getString(NAME.toString()))
-              .addRake(result.getDouble(GEO_RAKE.toString()))
-              .addWidth(result.getDouble(CALC_WIDTH.toString()))
-              .addZengRate(result.getDouble(ZENG_DISPLACEMENT_RATE.toString()));
+          LocationList trace = wktToLocationList(faultTraceWkt);
+          
+          /* Set fault geometry */
+          FaultGeometry geometry = FaultGeometry.builder()
+              .depth(result.getDouble(UPPER_DEPTH.toLowerCase()))
+              .dip(result.getDouble(DIP.toLowerCase()))
+              .rake(result.getDouble(GEO_RAKE.toLowerCase()))
+              .trace(trace)
+              .width(result.getDouble(CALC_WIDTH.toLowerCase()))
+              .build();
+          
+          double birdRate = result.getDouble(BIRD_DISPLACEMENT_RATE.toLowerCase());
+          double geoRate = result.getDouble(GEO_DISPLACEMENT_RATE.toLowerCase());
+          double zengRate = result.getDouble(ZENG_DISPLACEMENT_RATE.toLowerCase());
+          
+          DeformationModelList deformationModels = DeformationModelList.builder()
+              .add(DeformationModel.bird(birdRate))
+              .add(DeformationModel.geo(geoRate))
+              .add(DeformationModel.zeng(zengRate))
+              .build();
+          
+          FaultSource.Builder sourceBuilder = FaultSource.builder();
+          sourceBuilder.deformationModels(deformationModels)
+              .geometry(geometry)
+              .id("?")
+              .name(result.getString(NAME.toLowerCase()));
+          
+          sourceListBuilder.add(sourceBuilder.build());
         }
-        result.close();
+        result.close();  
         
-        XMLExporter.writeXML(modelBuilder.build(), postgres.table);
+        Settings settings = Settings.westernUS();
+        FaultSourceSet sourceSet = FaultSourceSet.builder()
+            .defaultMfds(settings.defaultMfds)
+            .magUncertainties(settings.magUncertainties)
+            .name(primaryState + " " + FAULTS.toUpperCamelCase())
+            .ruptureScalingModels(settings.ruptureScalingModels)
+            .sources(sourceListBuilder.build())
+            .build();
+   
+        FaultXMLExporter.writeXML(sourceSet, postgres.table, primaryState);
       }
       
       postgres.close();
@@ -126,20 +158,19 @@ public class FaultExporter {
   }
   
   /**
-   * Return a string of the coordinates of the fault trace.
+   * Return a {@code LocationList} of the fault trace.
    * @param wkt The well know text.
    * @throws ParseException
    */
-  static String wktToCoordinates (String wkt) throws ParseException {
+  static LocationList wktToLocationList (String wkt) throws ParseException {
     WKTReader wktReader = new WKTReader();
     Geometry faultTraceGeom = wktReader.read(wkt);
-    String faultTraceString = "\n";
+    LocationList.Builder trace = LocationList.builder();
     for (Coordinate coord : faultTraceGeom.getCoordinates()) {
-      faultTraceString = faultTraceString
-          .concat(String.format("%.5f,%.5f,0.00000\n", coord.x, coord.y));
+        trace.add(coord.y, coord.x, 0.0);
     }
     
-    return faultTraceString;
+    return trace.build();
   }
   
 }

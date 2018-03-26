@@ -1,11 +1,9 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres.sources;
 
-import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
+import static gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,19 +19,20 @@ import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import gov.usgs.earthquake.nshmp.internal.UsRegion;
+import gov.usgs.earthquake.nshmp.eq.fault.surface.RuptureScaling;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.DefaultMfd;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.DeformationModel;
+import gov.usgs.earthquake.nshmp.postgres.source_settings.MagUncertainty;
 
 /**
- * Export {@link ModelParameters} to a XML file.
+ * Export a {@link FaultSourceSet} to a XML file.
  * 
  * @author Brandon Clayton
  * @see XMLExporter#writeXML(ModelParameters, String)
  */
-public class XMLExporter {
+public class FaultXMLExporter {
   static final String DISCLAIMER = 
       " This model is an example and for review purposes only ";
-  static final String FAULT_SOURCE_ID = "-1";
-  static final String FAULT_SOURCE_WEIGHT = "1.0";
   static final String MAIN_OUTPUT_DIR = "output";
 
   /**
@@ -49,7 +48,12 @@ public class XMLExporter {
    *              <Epistemic ... />
    *              <Aleatory ... />
    *            </MagUncertainty>
-   *            <SourceProperties ruptureScaling="" />
+   *            <SourceProperties [attributes]>
+   *              <RuptureScalingModels>
+   *                <Model id="" weight="" />
+   *                <Model id="" weight="" />
+   *              </RuptureScalingModels>
+   *            </SourceProperties>
    *          </Settings>
    *          <Source name="Some fault zone">
    *            <DeformationModel id="BIRD" rate=""/>
@@ -68,12 +72,13 @@ public class XMLExporter {
    * @throws ParserConfigurationException
    * @throws IOException 
    */
-  static void writeXML (ModelParameters model, String outputDir) 
+  public static void writeXML (
+      FaultSourceSet sourceSet, 
+      String outputDir, 
+      String fileOuput) 
       throws TransformerException, ParserConfigurationException, IOException {
     String xmlOutputDir = MAIN_OUTPUT_DIR + "/" + outputDir + "/";
     checkDirectory(xmlOutputDir);
-    
-    UsRegion primaryState = UsRegion.valueOf(model.stateAbbrev);
     
     /* Create document */
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -82,22 +87,22 @@ public class XMLExporter {
     doc.setXmlStandalone(true);
     
     /* Create fault source set (root) XML node */
-    Element rootEl = doc.createElement(FAULT_SOURCE_SET.toUpperCamelCase());
-    rootEl.setAttribute(
-        NAME.toLowerCase(),
-        primaryState + " " + FAULTS.toUpperCamelCase());
-    rootEl.setAttribute(ID.toLowerCase(), FAULT_SOURCE_ID);
-    rootEl.setAttribute(WEIGHT.toLowerCase(), FAULT_SOURCE_WEIGHT);
+    Element rootEl = doc.createElement(sourceSet.type.toUpperCamelCase());
+    for (SourceAttribute key : sourceSet.attributes.keySet()) {
+      rootEl.setAttribute(key.toLowerCamelCase(), sourceSet.attributes.get(key));
+    }
+    
     Comment disclaimer = doc.createComment(DISCLAIMER);
     rootEl.appendChild(disclaimer);
     doc.appendChild(rootEl);
     
     /* Create settings node */
     Element settingsEl = doc.createElement(SETTINGS.toUpperCamelCase());
-    
+  
     /* Create all incremental mfds */
     Element defaultMfdsEl = doc.createElement(DEFAULT_MFDS.toUpperCamelCase());
-    for (DefaultMfd mfd : model.defaultMfds) {
+    
+    for (DefaultMfd mfd : sourceSet.defaultMfds.mfds) {
       Element incrementalMfdEl = doc.createElement(INCREMENTAL_MFD.toUpperCamelCase());  
       for (SourceAttribute key : mfd.attributes.keySet()) {
         incrementalMfdEl.setAttribute(key.toLowerCamelCase(), mfd.attributes.get(key));
@@ -108,7 +113,7 @@ public class XMLExporter {
     
     /* Create all mag uncertainties */
     Element magUncertaintyEl = doc.createElement(MAG_UNCERTAINTY.toUpperCamelCase());
-    for (MagUncertainty mag : model.magUncertainties) {
+    for (MagUncertainty mag : sourceSet.magUncertainties.sigmas) {
       Element magEl = doc.createElement(mag.attributes.get(TYPE));
       for (SourceAttribute key : mag.attributes.keySet()) {
         if (key.equals(TYPE)) continue;
@@ -120,43 +125,47 @@ public class XMLExporter {
     
     /* Create source properties */
     Element sourcePropEl = doc.createElement(SOURCE_PROPERTIES.toUpperCamelCase());
-    sourcePropEl.setAttribute(RUPTURE_SCALING.toLowerCamelCase(), 
-        model.ruptureScaling.toString());
+    
+    /* Create rupture scaling models node */
+    Element ruptureEl = doc.createElement(RUPTURE_SCALING_MODELS.toUpperCamelCase());
+    for (RuptureScaling model : sourceSet.ruptureScalingModels.models) {
+      Element modelEl = doc.createElement("Model");
+      modelEl.setAttribute(ID.toLowerCase(), model.toString());
+      ruptureEl.appendChild(modelEl);
+    }
+    sourcePropEl.appendChild(ruptureEl);
     settingsEl.appendChild(sourcePropEl);
     
     /* Append all settings */
     rootEl.appendChild(settingsEl);
     
     /* Create all source nodes */
-    for (int jf = 0; jf < model.name.size(); jf++) {
+    for (FaultSource source : sourceSet.sources) {
       Element sourceEl = doc.createElement(SOURCE.toUpperCamelCase());
-      sourceEl.setAttribute(NAME.toLowerCase(), model.name.get(jf));
-      sourceEl.setAttribute(ID.toLowerCase(),"?");
+      for (SourceAttribute key : source.attributes.keySet()) {
+        sourceEl.setAttribute(key.toLowerCamelCase(), source.attributes.get(key));
+      }
       rootEl.appendChild(sourceEl);
       
       /* Create all deformation model nodes */
-      Map<SourceAttribute, String> deformationModel = new HashMap<>();
-      deformationModel.put(BIRD, model.birdRate.get(jf).toString());
-      deformationModel.put(GEO, model.geoRate.get(jf).toString());
-      deformationModel.put(ZENG, model.zengRate.get(jf).toString());
-      
-      for (SourceAttribute rateModel : deformationModel.keySet()) {
+      for (DeformationModel defModel : source.deformationModels.models) {
         Element rateEl = doc.createElement(DEFORMATION_MODEL.toUpperCamelCase());
-        rateEl.setAttribute(ID.toLowerCase(), rateModel.toUpperCase());
-        rateEl.setAttribute(RATE.toLowerCase(), deformationModel.get(rateModel));
+        rateEl.setAttribute(ID.toLowerCase(), defModel.id);
+        rateEl.setAttribute(RATE.toLowerCase(), defModel.rate);
         sourceEl.appendChild(rateEl);
       }
       
       /* Create geometry node */
       Element geometryEl = doc.createElement(GEOMETRY.toUpperCamelCase());
-      geometryEl.setAttribute(DEPTH.toLowerCase(), model.depth.get(jf).toString());
-      geometryEl.setAttribute(DIP.toLowerCase(), model.dip.get(jf).toString());
-      geometryEl.setAttribute(RAKE.toLowerCase(), model.rake.get(jf).toString());
-      geometryEl.setAttribute(WIDTH.toLowerCase(), model.width.get(jf).toString());
+      for (SourceAttribute key : source.geometry.attributes.keySet()) {
+        geometryEl.setAttribute(
+            key.toLowerCamelCase(), 
+            source.geometry.attributes.get(key));
+      }
       
       /* Create fault trace node */
       Element faultTraceEl = doc.createElement(TRACE.toUpperCamelCase());
-      faultTraceEl.appendChild(doc.createTextNode(model.faultTrace.get(jf)));
+      faultTraceEl.appendChild(doc.createTextNode(source.geometry.trace.toString()));
       geometryEl.appendChild(faultTraceEl);
       sourceEl.appendChild(geometryEl);
     }
@@ -165,14 +174,14 @@ public class XMLExporter {
     Transformer transformer = transformerFactory.newTransformer();
     DOMSource domSource = new DOMSource(doc);
     StreamResult streamResult = new StreamResult(xmlOutputDir + 
-        primaryState + ".xml");
+        fileOuput + ".xml");
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
     transformer.transform(domSource, streamResult);
   }
   
-  /**
+  /*
    * Create the output directory for the XML files.
    * @param xmlOutputDir
    * @throws IOException

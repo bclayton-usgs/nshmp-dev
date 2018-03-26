@@ -1,8 +1,11 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres.source_settings;
+
+import static gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute.*;
 
 import java.util.Arrays;
 import com.google.common.collect.ImmutableMap;
-import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
+
+import gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute;
 
 /**
  * Container to set magnitude frequency distribution attributes, 
@@ -13,7 +16,7 @@ import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
  *
  */
 public class DefaultMfd {
-  ImmutableMap<SourceAttribute, String> attributes;
+  public ImmutableMap<SourceAttribute, String> attributes;
   
   private DefaultMfd(ImmutableMap<SourceAttribute, String> attributes) {
     this.attributes = attributes;
@@ -31,7 +34,7 @@ public class DefaultMfd {
    *      <li> weight = double </li>
    *    <ul>
    */
-  static class GutenbergRichterMfd {
+  public static class GutenbergRichterMfd {
     final static SourceAttribute MFD_TYPE = GR;
     
     private GutenbergRichterMfd() {}
@@ -42,62 +45,62 @@ public class DefaultMfd {
      * 
      * @see GutenbergRichterMfd.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** GutenbergRichterMfd builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Return {@code DefaultMfd} instance. */
-      DefaultMfd build () {
+      public DefaultMfd build () {
         this.attributes.put(TYPE, MFD_TYPE.toString());
         validate();
         return new DefaultMfd(this.attributes.build());
       }
       
       /** Set a attribute */
-      Builder a (double a) {
+      public Builder a (double a) {
         this.attributes.put(A, Double.toString(a));
         return this;
       }
       
       /** Set b attribute */
-      Builder b (double b) {
+      public Builder b (double b) {
         this.attributes.put(B, Double.toString(b));
         return this;
       }
       
       /** Set dMag attribute */
-      Builder dMag (double dMag) {
+      public Builder dMag (double dMag) {
         this.attributes.put(D_MAG, Double.toString(dMag));
         return this;
       }
       
       /** Set mMax attribute */
-      Builder mMax (double mMax ) {
+      public Builder mMax (double mMax ) {
         this.attributes.put(M_MAX, Double.toString(mMax));
         return this;
       }
       
       /** Set mMin attribute */
-      Builder mMin (double mMin ) {
+      public Builder mMin (double mMin ) {
         this.attributes.put(M_MIN, Double.toString(mMin));
         return this;
       }
       
       /** Set the weight attribute */
-      Builder weight (double weight) {
+      public Builder weight (double weight) {
         this.attributes.put(WEIGHT, Double.toString(weight));
         return this;
       }
       
       /** Validate that all fields are set */
-      void validate () {
+      private void validate () {
         ImmutableMap<SourceAttribute, String> mfdCheck = this.attributes.build();
         
         if (!mfdCheck.containsKey(A) ||
@@ -123,7 +126,7 @@ public class DefaultMfd {
    *      <li> weight = double </li>
    *    <ul>
    */
-  static class IncrementalMfd {
+  public static class IncrementalMfd {
     final static SourceAttribute MFD_TYPE = INCR;
     
     private IncrementalMfd() {}
@@ -134,50 +137,50 @@ public class DefaultMfd {
      * 
      * @see IncrementalMfd.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** IncrementalMfd builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Return {@code DefaultMfd} instance */
-      DefaultMfd build () {
+      public DefaultMfd build () {
         this.attributes.put(TYPE, MFD_TYPE.toString());
         validate();
         return new DefaultMfd(this.attributes.build());
       }
       
       /** Set floats attribute */
-      Builder floats (Boolean floats) {
+      public Builder floats (Boolean floats) {
         this.attributes.put(FLOATS, floats.toString());
         return this;
       }
       
       /** Set mags attribute */
-      Builder mags (double[] mags) {
+      public Builder mags (double[] mags) {
         this.attributes.put(MAGS, Arrays.toString(mags));
         return this;
       }
       
       /** Set the rates attribute */
-      Builder rates (double[] rates) {
+      public Builder rates (double[] rates) {
         this.attributes.put(RATES, Arrays.toString(rates));
         return this;
       }
       
       /** Set the weight attribute */
-      Builder weight (double weight) {
+      public Builder weight (double weight) {
         this.attributes.put(WEIGHT, Double.toString(weight));
         return this;
       }
       
       /** Validate all fields are set */
-      void validate () {
+      private void validate () {
         ImmutableMap<SourceAttribute, String> mfdCheck = this.attributes.build();
         
         if (!mfdCheck.containsKey(FLOATS) ||
@@ -201,7 +204,7 @@ public class DefaultMfd {
    *      <li> weight = double </li>
    *    <ul>
    */
-  static class SingleMfd {
+  public static class SingleMfd {
     final static SourceAttribute MFD_TYPE = SINGLE;
     
     private SingleMfd() {}
@@ -212,50 +215,50 @@ public class DefaultMfd {
      * 
      * @see SingleMfd.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** SingleMfd builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Return {@code DefaultMfd} instance */
-      DefaultMfd build () {
+      public DefaultMfd build () {
         this.attributes.put(TYPE, MFD_TYPE.toString());
         validate();
         return new DefaultMfd(this.attributes.build());
       }
       
       /** Set floats attribute */
-      Builder floats (Boolean floats) {
+      public Builder floats (Boolean floats) {
         this.attributes.put(FLOATS, floats.toString());
         return this;
       }
       
       /** Set m attribute */
-      Builder m (double m) {
+      public Builder m (double m) {
         this.attributes.put(M, Double.toString(m));
         return this;
       }
       
       /** Set rate attribute */
-      Builder rate (double rate) {
+      public Builder rate (double rate) {
         this.attributes.put(RATE, Double.toString(rate));
         return this;
       }
       
       /** Set weight attribute */
-      Builder weight (double weight) {
+      public Builder weight (double weight) {
         this.attributes.put(WEIGHT, Double.toString(weight));
         return this;
       }
       
       /** Validate all fields are set */
-      void validate () {
+      private void validate () {
         ImmutableMap<SourceAttribute, String> mfdCheck = this.attributes.build();
         
         if (!mfdCheck.containsKey(FLOATS) ||
@@ -282,7 +285,7 @@ public class DefaultMfd {
    *      <li> weight = double </li>
    *    <ul>
    */
-  static class TaperedGutenbergRichterMfd {
+  public static class TaperedGutenbergRichterMfd {
     final static SourceAttribute MFD_TYPE = GR_TAPER;
     
     private TaperedGutenbergRichterMfd() {}
@@ -293,74 +296,74 @@ public class DefaultMfd {
      * 
      * @see TaperedGutenbergRichterMfd.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** TaperedGutenbergRichterMfd builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Returns {@code DefaultMfd} instance */
-      DefaultMfd build () {
+      public DefaultMfd build () {
         this.attributes.put(TYPE, MFD_TYPE.toString());
         validate();
         return new DefaultMfd(this.attributes.build());
       }
       
       /** Set a attribute */
-      Builder a (double a) {
+      public Builder a (double a) {
         this.attributes.put(A, Double.toString(a));
         return this;
       }
       
       /** Set b attribute */
-      Builder b (double b) {
+      public Builder b (double b) {
         this.attributes.put(A, Double.toString(b));
         return this;
       }
       
       /** Set cMag attribute */
-      Builder cMag (double cMag) {
+      public Builder cMag (double cMag) {
         this.attributes.put(C_MAG, Double.toString(cMag));
         return this;
       }
       
       /** Set dMag attribute */
-      Builder dMag (double dMag) {
+      public Builder dMag (double dMag) {
         this.attributes.put(D_MAG, Double.toString(dMag));
         return this;
       }
       
       /** Set mCut attribute */
-      Builder mCut (double mCut) {
+      public Builder mCut (double mCut) {
         this.attributes.put(M_CUT, Double.toString(mCut));
         return this;
       }
       
       /** Set mMax attribute */
-      Builder mMax (double mMax ) {
+      public Builder mMax (double mMax ) {
         this.attributes.put(M_MAX, Double.toString(mMax));
         return this;
       }
       
       /** Set mMin attribute */
-      Builder mMin (double mMin ) {
+      public Builder mMin (double mMin ) {
         this.attributes.put(M_MIN, Double.toString(mMin));
         return this;
       }
       
       /** Set weight attribute */
-      Builder weight (double weight) {
+      public Builder weight (double weight) {
         this.attributes.put(WEIGHT, Double.toString(weight));
         return this;
       }
       
       /** Validate all fields are set */
-      void validate () {
+      private void validate () {
         ImmutableMap<SourceAttribute, String> mfdCheck = this.attributes.build();
         
         if (!mfdCheck.containsKey(A) ||

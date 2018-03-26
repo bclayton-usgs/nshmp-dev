@@ -1,4 +1,4 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres.sources;
 
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
@@ -74,26 +74,33 @@ public enum SourceAttribute {
   C_MAG,
   M_CUT,
   MAGS,
-  RATES;
+  RATES,
+  
+  /* Sources */
+  MAG_DEPTH_MAP,
+  MAX_DEPTH,
+  FOCAL_MECH_MAP,
+  STRIKE,
+  RUPTURE_SCALING_MODELS;
   
   
   /** Return lower case string */
-  String toLowerCase () {
+  public String toLowerCase () {
     return name().toLowerCase();
   }
   
   /** Return upper case string */
-  String toUpperCase () {
+  public String toUpperCase () {
     return name().toUpperCase();
   }
   
   /** Return upper camel case string */
-  String toUpperCamelCase () {
+  public String toUpperCamelCase () {
     return UPPER_UNDERSCORE.to(UPPER_CAMEL, name());
   }
   
   /** Return lower camel case string */
-  String toLowerCamelCase () {
+  public String toLowerCamelCase () {
     return UPPER_UNDERSCORE.to(LOWER_CAMEL, name());
   }
   

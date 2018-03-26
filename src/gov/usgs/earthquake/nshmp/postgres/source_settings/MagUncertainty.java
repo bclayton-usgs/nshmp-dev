@@ -1,8 +1,11 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres.source_settings;
+
+import static gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute.*;
 
 import java.util.Arrays;
 import com.google.common.collect.ImmutableMap;
-import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
+
+import gov.usgs.earthquake.nshmp.postgres.sources.SourceAttribute;
 
 /**
  * Container to set magnitude uncertainty attributes for either 
@@ -11,7 +14,7 @@ import static gov.usgs.earthquake.nshmp.SourceAttribute.*;
  * @author Brandon Clayton
  */
 public class MagUncertainty {
-  ImmutableMap<SourceAttribute, String> attributes;
+  public ImmutableMap<SourceAttribute, String> attributes;
   
   private MagUncertainty(ImmutableMap<SourceAttribute, String> attributes) {
     this.attributes = attributes;
@@ -26,7 +29,7 @@ public class MagUncertainty {
    *      <li> sigma = double </li>
    *    </ul>
    */
-  static class Aleatory {
+  public static class Aleatory {
     
     /**
      * Returns {@code Aleatory} builder.
@@ -34,50 +37,50 @@ public class MagUncertainty {
      * 
      * @see Aleatory.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** Aleatory builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Returns {@code MagUncertainty} instance */
-      MagUncertainty build () {
+      public MagUncertainty build () {
         this.attributes.put(TYPE, ALEATORY.toUpperCamelCase());
         validate();
         return new MagUncertainty(this.attributes.build());
       }
       
       /** Set count attribute */
-      Builder count (int count) {
+      public Builder count (int count) {
         this.attributes.put(COUNT, Integer.toString(count));
         return this;
       }
       
       /** Set cutoff attribute */
-      Builder cutoff (double cutoff) {
+      public Builder cutoff (double cutoff) {
         this.attributes.put(CUTOFF, Double.toString(cutoff));
         return this;
       }
       
       /** Set moBalance attribute */
-      Builder moBalance (Boolean moBalance) {
+      public Builder moBalance (Boolean moBalance) {
         this.attributes.put(MO_BALANCE, moBalance.toString());
         return this;
       }
       
       /** Set sigma attribute */
-      Builder sigma (double sigma) {
+      public Builder sigma (double sigma) {
         this.attributes.put(SIGMA, Double.toString(sigma));
         return this;
       }
       
-      /** Validate all fields are set */
-      void validate () {
+      /* Validate all fields are set */
+      private void validate () {
         ImmutableMap<SourceAttribute, String> magCheck = this.attributes.build();
         
         if (!magCheck.containsKey(COUNT) ||
@@ -100,7 +103,7 @@ public class MagUncertainty {
    *    <ul>
    *
    */
-  static class Epistemic {
+  public static class Epistemic {
     
     /**
      * Returns {@code Epistemic} builder.
@@ -108,44 +111,44 @@ public class MagUncertainty {
      * 
      * @see Epistemic.Builder
      */
-    static Builder builder () {
+    public static Builder builder () {
       return new Builder();
     }
     
     /** Epistemic builder */
-    static class Builder {
+    public static class Builder {
       private ImmutableMap.Builder<SourceAttribute, String> attributes = 
           ImmutableMap.builder();
       
       private Builder () {}
       
       /** Returns {@code MagUncertainty} instance */
-      MagUncertainty build () {
+      public MagUncertainty build () {
         this.attributes.put(TYPE, EPISTEMIC.toUpperCamelCase());
         validate();
         return new MagUncertainty(this.attributes.build());
       }
       
       /** Set cutoff attribute */
-      Builder cutoff (double cutoff) {
+      public Builder cutoff (double cutoff) {
         this.attributes.put(CUTOFF, Double.toString(cutoff));
         return this;
       }
       
       /** Set deltas attribute */
-      Builder deltas (double[] deltas) {
+      public Builder deltas (double[] deltas) {
         this.attributes.put(DELTAS, Arrays.toString(deltas));
         return this;
       }
       
       /** Set weights attribute */
-      Builder weights (double[] weights) {
+      public Builder weights (double[] weights) {
         this.attributes.put(WEIGHTS, Arrays.toString(weights));
         return this;
       }
       
-      /** Validate all fields are set */
-      void validate () {
+      /* Validate all fields are set */
+      private void validate () {
         ImmutableMap<SourceAttribute, String> magCheck = this.attributes.build();
         
         if (!magCheck.containsKey(CUTOFF) ||

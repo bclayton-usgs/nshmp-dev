@@ -1,4 +1,4 @@
-package gov.usgs.earthquake.nshmp;
+package gov.usgs.earthquake.nshmp.postgres;
 
 import java.io.FileInputStream;
 import java.io.IOException;
