@@ -8,7 +8,7 @@ import gov.usgs.earthquake.nshmp.postgres.source_settings.MagUncertaintyList;
 import gov.usgs.earthquake.nshmp.postgres.source_settings.RuptureScalingList;
 import gov.usgs.earthquake.nshmp.postgres.source_settings.SourcePropertyAttributes;
 
-public class Settings {
+class Settings {
   public DefaultMfdList defaultMfds;
   public MagUncertaintyList magUncertainties;
   public SourcePropertyAttributes sourceProperties;
@@ -21,11 +21,11 @@ public class Settings {
    this.sourceProperties = builder.sourceProperties;
   }
 
-  public static Builder builder() {
+  static Builder builder() {
     return new Builder();
   }
   
-  public static class Builder {
+  static class Builder {
     private DefaultMfdList defaultMfds;
     private MagUncertaintyList magUncertainties;
     private RuptureScalingList ruptureScalingModels;
@@ -33,32 +33,32 @@ public class Settings {
     
     private Builder() {}
     
-    public Settings build() {
+    Settings build() {
       return new Settings(this);
     }
     
-    public Builder defaultMfds (DefaultMfdList mfds) {
+    Builder defaultMfds (DefaultMfdList mfds) {
       this.defaultMfds = mfds;
       return this;
     }
    
-    public Builder magUncertainties(MagUncertaintyList uncertainties) {
+    Builder magUncertainties(MagUncertaintyList uncertainties) {
       this.magUncertainties = uncertainties;
       return this;
     }
     
-    public Builder sourceProperties(SourcePropertyAttributes sourceProperties) {
+    Builder sourceProperties(SourcePropertyAttributes sourceProperties) {
       this.sourceProperties = sourceProperties;
       return this;
     }
     
-    public Builder ruptureScalingModels(RuptureScalingList models) {
+    Builder ruptureScalingModels(RuptureScalingList models) {
       this.ruptureScalingModels = models;
       return this;
     }
   }
   
-  public static Settings westernUS () {
+  static Settings westernUS () {
     /* Set MFDs */
     DefaultMfd singleMfd = DefaultMfd.SingleMfd.builder()
         .floats(false)
