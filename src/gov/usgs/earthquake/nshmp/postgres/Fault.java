@@ -11,7 +11,7 @@ import static gov.usgs.earthquake.nshmp.eq.model.SourceType.FAULT;
 import static gov.usgs.earthquake.nshmp.internal.TextUtils.validateName;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DEPTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DIP;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATES;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_MODELS;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.TITLE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WIDTH;
 
@@ -314,7 +314,7 @@ public class Fault {
 
   /* Get slip rates from GeoJSON property */
   private static List<SlipRate> getSlipRates(Properties properties) {
-    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(SLIP_RATES));
+    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(SLIP_MODELS));
     return ImmutableList.copyOf(GSON.fromJson(slipRatesEl, SlipRate[].class));
   }
 

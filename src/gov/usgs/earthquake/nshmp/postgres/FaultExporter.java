@@ -12,8 +12,7 @@ import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.GEO_RATE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ID;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.NAME;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.PRIMARY_STATE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.RAKE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATES;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_MODELS;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.STATE_ABBREV;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.TITLE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.UPPER_DEPTH;
@@ -169,9 +168,8 @@ public class FaultExporter {
         .put(TITLE, result.getString(NAME))
         .put(DEPTH, result.getDouble(UPPER_DEPTH))
         .put(DIP, result.getDouble(DIP))
-        .put(RAKE, result.getDouble(GEO_RAKE))
         .put(WIDTH, result.getDouble(CALC_WIDTH))
-        .put(SLIP_RATES, getSlipRates(result))
+        .put(SLIP_MODELS, getSlipRates(result))
         .build();
 
     return Feature.polygon(trace)
