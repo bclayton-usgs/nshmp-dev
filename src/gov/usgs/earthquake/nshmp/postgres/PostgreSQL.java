@@ -1,56 +1,74 @@
 package gov.usgs.earthquake.nshmp.postgres;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import static com.google.common.base.Preconditions.checkState;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ASCEND;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DESCEND;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.FROM;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ORDER_BY;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SELECT;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SELECT_DISTINCT;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WHERE;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Connect and query a PostgeSQL database.
- * Use {@code Builder} for new instance.
+ * 
+ * <p> Use {@code Builder} for new instance.
  * 
  * @author Brandon Clayton
  */
-public class Postgres {
-  final String database;
-  final String host;
-  final String password;
-  final String table;
-  final String username;
-  
-  Connection connection;
-  Statement statement;
-  
-  private Postgres(Builder builder) {
-    this.database = builder.database;
-    this.host = builder.host;
-    this.password = builder.password;
-    this.table = builder.table;
-    this.username = builder.username;
+public class PostgreSQL {
+
+  private static Connection connection;
+  private static Statement statement;
+
+  private final String database;
+  private final String password;
+  private final String table;
+  private final String url;
+  private final String username;
+
+  private PostgreSQL(Builder builder) {
+    database = builder.database;
+    password = builder.password;
+    table = builder.table;
+    username = builder.username;
+    url = builder.url;
   }
-  
+
+  /** The database table name */
+  String table() {
+    return table;
+  }
+
+  /** The database name */
+  String database() {
+    return database;
+  }
+
   /**
    * Create a read only connection to the specified PostgreSQL database.
    * 
    * @throws ClassNotFoundException
    * @throws SQLException
    */
-  void connect () throws ClassNotFoundException, SQLException {
-    System.out.println("Connecting to " + this.database +  " database ...\n");
+  void connect() throws ClassNotFoundException, SQLException {
+    System.out.println("Connecting to [" + database + "." + table + "] database ...\n");
     Class.forName("org.postgresql.Driver");
-    this.connection = DriverManager.getConnection(this.host + this.database, 
-        this.username, 
-        this.password);
-    this.connection.setReadOnly(true);
+
+    connection = DriverManager.getConnection(
+        url + database,
+        username,
+        password);
+
+    connection.setReadOnly(true);
   }
-  
+
   /**
    * Query the PostgreSQL database with SQL.
    * 
@@ -58,125 +76,179 @@ public class Postgres {
    * @return The resulting query
    * @throws SQLException
    */
-  ResultSet query (String sql) throws SQLException {
-    this.statement = this.connection.createStatement();
-    ResultSet result = this.statement.executeQuery(sql);
-    
-    return result;
+  ResultSet query(String sql) throws SQLException {
+    statement = connection.createStatement();
+    return statement.executeQuery(sql);
   }
-  
+
   /**
    * Close the PostgreSQL database connection.
    * 
    * @throws SQLException
    */
-  void close () throws SQLException {
-    this.statement.close();
-    this.connection.close();
-    System.out.println("\nDisconnecting from " + this.database +  " database \n");
+  void close() throws SQLException {
+    statement.close();
+    connection.close();
+
+    System.out.println("\nDisconnecting from [" + database + "." + table + "] database \n");
   }
-  
-  /** 
-   * Returns the {@code Postgres} builder. 
-   * Each field can be set using the appropriate builder 
-   *    method or can build with a properties file
-   *    using {@link Builder#withConfigFile(String)}.
-   * 
-   * @see Postgres.Builder
-   */
-  static Builder builder () {
+
+  /** New PostgreSQL builder */
+  static Builder builder() {
     return new Builder();
   }
-  
-  /**
-   * Postgres builder.
-   */
+
+  /** PostgreSQL builder */
   static class Builder {
+
     private String database;
-    private String host;
     private String password;
     private String table;
+    private String url;
     private String username;
-  
-    private Builder () {}
-    
-    /** Return {@code Postgres} instance */
-    Postgres build () {
-      validate();
-      return new Postgres(this);
+
+    boolean built;
+
+    private Builder() {
+      built = false;
     }
-    
-    /** Set the PostgreSQL database */ 
-    Builder database (String database) {
+
+    /** Set the PostgreSQL database name. */
+    Builder database(String database) {
       this.database = database;
       return this;
     }
-    
-    /** Set the PostgreSQL host path */
-    Builder host (String host) {
-      this.host = host;
-      return this;
-    }
-    
-    /** Set the PostgreSQL database password */
-    Builder password (String password) {
+
+    /** Set the PostgreSQL database password. */
+    Builder password(String password) {
       this.password = password;
       return this;
     }
-    
-    /** Set the PostgreSQL table to query */
-    Builder table (String table) {
+
+    /** Set the PostgreSQL table name to query. */
+    Builder table(String table) {
       this.table = table;
       return this;
     }
-    
-    /** Set the PostgreSQL database username */
-    Builder username (String username) {
+
+    /** Set the PostgreSQL url path. */
+    Builder url(String url) {
+      this.url = url;
+      return this;
+    }
+
+    /** Set the PostgreSQL database username. */
+    Builder username(String username) {
       this.username = username;
       return this;
     }
-    
-    /**
-     * Read in a properties file.
-     * The properties file must be a proper Java properties file and contain:
-     *    <ul>
-     *      <li> database </li>
-     *      <li> host </li>
-     *      <li> password </li>
-     *      <li> table </li>
-     *      <li> username </li>
-     *    </ul>
-     */
-    Builder withConfigFile (String filename) {
-      Properties prop = new Properties();
-      InputStream inputStream = null;
-    
-      try {
-        inputStream = new FileInputStream(filename);
-        prop.load(inputStream);
-        
-        this.database = prop.getProperty("database");
-        this.host = prop.getProperty("host");
-        this.password = prop.getProperty("password");
-        this.table = prop.getProperty("table");
-        this.username = prop.getProperty("username");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      
-      return this;
-    } 
-    
-    /** Validate all fields are set */
-    void validate () {
-      if (isNullOrEmpty(this.database) ||
-          isNullOrEmpty(this.host) ||
-          isNullOrEmpty(this.password) ||
-          isNullOrEmpty(this.table) ||
-          isNullOrEmpty(this.username)) {
-        throw new IllegalStateException("Not all fields are set");
-      }
+
+    /** Return new PostgreSQL. */
+    PostgreSQL build() {
+      validateState();
+      built = true;
+      return new PostgreSQL(this);
     }
+
+    private void validateState() {
+      checkState(!built);
+      checkState(database != null);
+      checkState(password != null);
+      checkState(table != null);
+      checkState(url != null);
+      checkState(username != null);
+    }
+
+  }
+
+  /** New query builder */
+  static QueryBuilder queryBuilder() {
+    return new QueryBuilder();
+  }
+
+  /** Build a SQL query */
+  static class QueryBuilder {
+
+    private StringBuilder query = new StringBuilder();
+
+    private QueryBuilder() {}
+
+    /**
+     * Set the SQL SELECT statement.
+     * 
+     * @param select The select statement
+     * @return this builder
+     */
+    QueryBuilder select(String select) {
+      query.append(SELECT + " " + select).append("\n");
+      return this;
+    }
+
+    /**
+     * Set the SQL SELECT DISTINCT statement.
+     * 
+     * @param select The select statement
+     * @return this builder
+     */
+    QueryBuilder selectDistinct(String select) {
+      query.append(SELECT_DISTINCT + " " + select).append("\n");
+      return this;
+    }
+
+    /**
+     * Set the SQL FROM statement.
+     * 
+     * @param from The from statement
+     * @return this builder
+     */
+    QueryBuilder from(String from) {
+      query.append(FROM + " " + from).append("\n");
+      return this;
+    }
+
+    /**
+     * Set the SQL WHERE statement.
+     * 
+     * @param where The where statement
+     * @return this builder
+     */
+    QueryBuilder where(String where) {
+      query.append(WHERE + " " + where).append("\n");
+      return this;
+    }
+
+    /**
+     * Set the SQL ORDER BY ASC statement.
+     * 
+     * @param orderBy The order by statement
+     * @return this builder
+     */
+    QueryBuilder orderByAscend(String orderBy) {
+      query.append(ORDER_BY + " " + orderBy + " " + ASCEND).append("\n");
+      return this;
+    }
+
+    /**
+     * Set the SQL ORDER BY DESC statment.
+     * 
+     * @param orderBy The order by statement
+     * @return this builder
+     */
+    QueryBuilder orderByDesencd(String orderBy) {
+      query.append(ORDER_BY + " " + orderBy + " " + DESCEND).append("\n");
+      return this;
+    }
+
+    /** Return the SQL string */
+    String toSql() {
+      return query.deleteCharAt(query.length() - 1).toString() + ";";
+    }
+
+    /** Query the PostgreSQL data base */
+    ResultSet query(PostgreSQL postgres) throws SQLException {
+      return postgres.query(toSql());
+    }
+
   }
 
 }
