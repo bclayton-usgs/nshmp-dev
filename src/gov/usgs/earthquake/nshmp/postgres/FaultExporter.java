@@ -71,7 +71,7 @@ public class FaultExporter {
    * @param out Output path for GeoJSON files
    */
   static void export(PostgreSQL postgres, Path out) {
-    
+
     try {
       postgres.connect();
       Set<String> states = getDistinctStates(postgres);
@@ -80,18 +80,18 @@ public class FaultExporter {
 
       for (String stateAbbrev : states) {
         System.out.println(stateAbbrev);
-        
+
         Path faultOut = out.resolve(stateAbbrev);
         Files.createDirectories(faultOut);
 
         ResultSet result = queryFault(postgres, stateAbbrev);
         writeFiles(result, faultOut);
-        
+
         result.close();
       }
 
       postgres.close();
-      
+
       System.out.println("Files located in [" + out.toString() + "]");
     } catch (Exception e) {
       e.printStackTrace();
@@ -109,7 +109,7 @@ public class FaultExporter {
         .query(postgres);
 
     Set<String> states = new TreeSet<>();
-    
+
     while (result.next()) {
       states.add(result.getString(STATE_ABBREV));
     }
@@ -147,17 +147,17 @@ public class FaultExporter {
 
     return selectFields.stream().collect(Collectors.joining(","));
   }
- 
+
   /* Write a GeoJson file for each fault */
   private static void writeFiles(ResultSet result, Path faultOut)
       throws IOException, ParseException, SQLException {
 
     while (result.next()) {
       GeoJson.Builder geojson = GeoJson.builder();
-      
+
       Feature feature = resultToFeature(result);
       String fileName = cleanName(feature.properties().getString(NAME));
-      
+
       geojson.add(feature);
       geojson.write(faultOut.resolve(fileName + ".geojson"));
     }
@@ -202,7 +202,7 @@ public class FaultExporter {
 
     return trace.build();
   }
- 
+
   /* Clean up fault name for file output */
   private static String cleanName(String name) {
     return CharMatcher.whitespace().collapseFrom(name
