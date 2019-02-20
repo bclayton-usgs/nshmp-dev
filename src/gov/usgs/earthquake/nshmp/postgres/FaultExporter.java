@@ -3,7 +3,6 @@ package gov.usgs.earthquake.nshmp.postgres;
 import static gov.usgs.earthquake.nshmp.postgres.Util.POSTGRES;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.BIRD_RAKE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.BIRD_RATE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.CALC_WIDTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DEPTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DIP;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.FAULT_TRACE;
@@ -12,15 +11,14 @@ import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.GEO_RATE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ID;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.NAME;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.PRIMARY_STATE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_MODELS;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATE_TREE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.STATE_ABBREV;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.TITLE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.UPPER_DEPTH;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WIDTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WKT_FAULT_TRACE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RAKE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RATE;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.google.common.base.CharMatcher;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -42,11 +41,9 @@ import gov.usgs.earthquake.nshmp.geo.LocationList;
 import gov.usgs.earthquake.nshmp.geo.json.Feature;
 import gov.usgs.earthquake.nshmp.geo.json.GeoJson;
 import gov.usgs.earthquake.nshmp.geo.json.Properties;
-import gov.usgs.earthquake.nshmp.internal.UsRegion;
 
 /**
- * Query a PostgreSQL fault database and write a GeoJSON file for each U.S.
- * state.
+ * Query a PostgreSQL fault database and write a GeoJSON file for each fault.
  * 
  * <p> To run the main method: Must have a config.properties file in the root
  * source directory with the following fields: 
@@ -68,30 +65,34 @@ public class FaultExporter {
   }
 
   /**
-   * Query the PostgreSQL database and write a GeoJSON file for each U.S. state.
+   * Query the PostgreSQL database and write a GeoJSON file for each fault.
    * 
    * @param postgres PostgreSQL to query
    * @param out Output path for GeoJSON files
    */
   static void export(PostgreSQL postgres, Path out) {
+    
     try {
       postgres.connect();
       Set<String> states = getDistinctStates(postgres);
 
-      System.out.println("Creating GeoJSON for: ");
+      System.out.println("Creating GeoJSON files for: ");
 
       for (String stateAbbrev : states) {
-        String state = UsRegion.valueOf(stateAbbrev).toString();
-        System.out.println(state);
+        System.out.println(stateAbbrev);
+        
+        Path faultOut = out.resolve(stateAbbrev);
+        Files.createDirectories(faultOut);
 
         ResultSet result = queryFault(postgres, stateAbbrev);
-        GeoJson.Builder geojson = resultToFeatureCollection(result);
+        writeFiles(result, faultOut);
+        
         result.close();
-        Files.createDirectories(out);
-        geojson.write(out.resolve(state + ".geojson"));
       }
 
       postgres.close();
+      
+      System.out.println("Files located in [" + out.toString() + "]");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -132,7 +133,6 @@ public class FaultExporter {
 
     selectFields.add(BIRD_RATE);
     selectFields.add(BIRD_RAKE);
-    selectFields.add(CALC_WIDTH);
     selectFields.add(DIP);
     selectFields.add(GEO_RATE);
     selectFields.add(GEO_RAKE);
@@ -147,18 +147,20 @@ public class FaultExporter {
 
     return selectFields.stream().collect(Collectors.joining(","));
   }
-
-  /* Convert the query result to a feature collection */
-  private static GeoJson.Builder resultToFeatureCollection(ResultSet result)
-      throws SQLException, ParseException {
-
-    GeoJson.Builder builder = GeoJson.builder();
+ 
+  /* Write a GeoJson file for each fault */
+  private static void writeFiles(ResultSet result, Path faultOut)
+      throws IOException, ParseException, SQLException {
 
     while (result.next()) {
-      builder.add(resultToFeature(result));
+      GeoJson.Builder geojson = GeoJson.builder();
+      
+      Feature feature = resultToFeature(result);
+      String fileName = cleanName(feature.properties().getString(NAME));
+      
+      geojson.add(feature);
+      geojson.write(faultOut.resolve(fileName + ".geojson"));
     }
-
-    return builder;
   }
 
   /* Convert the query to a feature */
@@ -167,14 +169,13 @@ public class FaultExporter {
     LocationList trace = wktToLocationList(faultTraceWkt);
 
     Map<String, Object> properties = Properties.builder()
-        .put(TITLE, result.getString(NAME))
+        .put(NAME, result.getString(NAME))
         .put(DEPTH, result.getDouble(UPPER_DEPTH))
         .put(DIP, result.getDouble(DIP))
-        .put(WIDTH, result.getDouble(CALC_WIDTH))
-        .put(SLIP_MODELS, getSlipRates(result))
+        .put(SLIP_RATE_TREE, getSlipRates(result))
         .build();
 
-    return Feature.polygon(trace)
+    return Feature.lineString(trace)
         .id(result.getInt(ID))
         .properties(properties)
         .build();
@@ -183,9 +184,9 @@ public class FaultExporter {
   /* Create the slip rates */
   private static List<SlipRate> getSlipRates(ResultSet result) throws SQLException {
     return SlipRate.builder()
-        .bird(result.getDouble(BIRD_RAKE), result.getDouble(BIRD_RATE))
-        .geo(result.getDouble(GEO_RAKE), result.getDouble(GEO_RATE))
-        .zeng(result.getDouble(ZENG_RAKE), result.getDouble(ZENG_RATE))
+        .bird(result.getDouble(BIRD_RATE), result.getDouble(BIRD_RAKE))
+        .geo(result.getDouble(GEO_RATE), result.getDouble(GEO_RAKE))
+        .zeng(result.getDouble(ZENG_RATE), result.getDouble(ZENG_RAKE))
         .build();
   }
 
@@ -200,6 +201,20 @@ public class FaultExporter {
     }
 
     return trace.build();
+  }
+ 
+  /* Clean up fault name for file output */
+  private static String cleanName(String name) {
+    return CharMatcher.whitespace().collapseFrom(name
+        .replace("faults", "")
+        .replace("fault", "")
+        .replace("zone", "")
+        .replace("-", " - ")
+        .replace("/", " - ")
+        .replace(" , ", " - ")
+        .replace(", ", " - ")
+        .replace(";", " : "),
+        ' ').trim();
   }
 
 }
