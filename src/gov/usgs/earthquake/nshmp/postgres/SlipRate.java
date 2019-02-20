@@ -20,12 +20,12 @@ public class SlipRate {
 
   private SlipModel id;
   private double rake;
-  private double rate;
+  private double value;
 
-  private SlipRate(SlipModel id, double rake, double rate) {
+  private SlipRate(SlipModel id, double value, double rake) {
     this.id = id;
     this.rake = checkRake(rake);
-    this.rate = rate;
+    this.value = value;
   }
 
   /** The id */
@@ -39,8 +39,8 @@ public class SlipRate {
   }
 
   /** The slip rate */
-  public double rate() {
-    return rate;
+  public double value() {
+    return value;
   }
 
   /** New slip rate builder */
