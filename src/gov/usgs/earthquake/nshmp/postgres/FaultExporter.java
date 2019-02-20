@@ -21,6 +21,7 @@ import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WKT_FAULT_TRACE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RAKE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RATE;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -86,6 +87,7 @@ public class FaultExporter {
         ResultSet result = queryFault(postgres, stateAbbrev);
         GeoJson.Builder geojson = resultToFeatureCollection(result);
         result.close();
+        Files.createDirectories(out);
         geojson.write(out.resolve(state + ".geojson"));
       }
 
