@@ -52,9 +52,7 @@ class Util {
     /* GeoJSON property keys */
     static final String DEPTH = "depth";
     static final String RAKE = "rake";
-    static final String SLIP_MODELS = "slipModels";
-    static final String TITLE = "title";
-    static final String WIDTH = "width";
+    static final String SLIP_RATE_TREE = "slipRateTree";
 
     /* PostgreSQL keys */
     static final String DATABASE = "database";
