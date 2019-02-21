@@ -3,7 +3,6 @@ package gov.usgs.earthquake.nshmp.postgres;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static gov.usgs.earthquake.nshmp.eq.Earthquakes.checkCrustalDepth;
-import static gov.usgs.earthquake.nshmp.eq.Earthquakes.checkCrustalWidth;
 import static gov.usgs.earthquake.nshmp.eq.fault.Faults.checkDip;
 import static gov.usgs.earthquake.nshmp.eq.fault.Faults.checkRake;
 import static gov.usgs.earthquake.nshmp.eq.fault.Faults.checkTrace;
@@ -11,9 +10,8 @@ import static gov.usgs.earthquake.nshmp.eq.model.SourceType.FAULT;
 import static gov.usgs.earthquake.nshmp.internal.TextUtils.validateName;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DEPTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DIP;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_MODELS;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.TITLE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WIDTH;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.NAME;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATE_TREE;
 
 import java.util.List;
 
@@ -39,19 +37,17 @@ public class Fault {
   private final String name;
   private final int id;
   private final LocationList trace;
-  private final List<SlipRate> slipRates;
+  private final List<SlipRate> slipRateTree;
   private final double depth;
   private final double dip;
-  private final double width;
 
   private Fault(UncheckedBuilder builder) {
     name = builder.name;
     id = builder.id;
     trace = builder.trace;
-    slipRates = builder.slipRates;
+    slipRateTree = builder.slipRateTree;
     depth = builder.depth;
     dip = builder.dip;
-    width = builder.width;
   }
 
   /** Fault name */
@@ -70,8 +66,8 @@ public class Fault {
   }
 
   /** Fault slip rates */
-  public List<SlipRate> slipRates() {
-    return slipRates;
+  public List<SlipRate> slipRateTree() {
+    return slipRateTree;
   }
 
   /** Fault upper depth in km */
@@ -82,11 +78,6 @@ public class Fault {
   /** Fault dip in degrees */
   public double dip() {
     return dip;
-  }
-
-  /** Fault width in km */
-  public double width() {
-    return width;
   }
 
   /** The {@code SourceType} */
@@ -127,25 +118,20 @@ public class Fault {
     }
 
     @Override
-    Builder slipRates(List<SlipRate> slipRates) {
-      checkNotNull(slipRates);
+    Builder slipRateTree(List<SlipRate> slipRateTree) {
+      checkNotNull(slipRateTree);
 
-      for (SlipRate slipRate : slipRates) {
+      for (SlipRate slipRate : slipRateTree) {
         checkRake(slipRate.rake());
         // checkWeight(slipRate.rate()); // How do we check rate?
       }
 
-      return (Builder) super.slipRates(slipRates);
+      return (Builder) super.slipRateTree(slipRateTree);
     }
 
     @Override
     Builder trace(LocationList trace) {
       return (Builder) super.trace(checkTrace(trace));
-    }
-
-    @Override
-    Builder width(double width) {
-      return (Builder) super.width(checkCrustalWidth(width));
     }
 
     /**
@@ -161,10 +147,9 @@ public class Fault {
       builder.depth(properties.getDouble(DEPTH))
           .dip(properties.getDouble(DIP))
           .id(feature.idInt())
-          .name(properties.getString(TITLE))
-          .slipRates(getSlipRates(properties))
-          .trace(feature.asPolygonBorder())
-          .width(properties.getDouble(WIDTH));
+          .name(properties.getString(NAME))
+          .slipRateTree(getSlipRates(properties))
+          .trace(feature.asPolygonBorder());
 
       return builder.build();
     }
@@ -182,16 +167,15 @@ public class Fault {
     private String name;
     private Integer id;
     private LocationList trace;
-    private ImmutableList<SlipRate> slipRates;
+    private ImmutableList<SlipRate> slipRateTree;
     private Double depth;
     private Double dip;
-    private Double width;
 
     private boolean built;
 
     private UncheckedBuilder() {
       built = false;
-      slipRates = ImmutableList.of();
+      slipRateTree = ImmutableList.of();
     }
 
     /**
@@ -244,8 +228,8 @@ public class Fault {
      * @param slipRates Fault slip rates
      * @return this builder
      */
-    UncheckedBuilder slipRates(List<SlipRate> slipRates) {
-      this.slipRates = ImmutableList.copyOf(slipRates);
+    UncheckedBuilder slipRateTree(List<SlipRate> slipRateTree) {
+      this.slipRateTree = ImmutableList.copyOf(slipRateTree);
       return this;
     }
 
@@ -257,17 +241,6 @@ public class Fault {
      */
     UncheckedBuilder trace(LocationList trace) {
       this.trace = trace;
-      return this;
-    }
-
-    /**
-     * Set the fault width in km.
-     * 
-     * @param width Fault width in km
-     * @return this builder
-     */
-    UncheckedBuilder width(double width) {
-      this.width = width;
       return this;
     }
 
@@ -291,10 +264,9 @@ public class Fault {
       builder.depth(properties.getDouble(DEPTH))
           .dip(properties.getDouble(DIP))
           .id(feature.idInt())
-          .name(properties.getString(TITLE))
-          .slipRates(getSlipRates(properties))
-          .trace(feature.asPolygonBorder())
-          .width(properties.getDouble(WIDTH));
+          .name(properties.getString(NAME))
+          .slipRateTree(getSlipRates(properties))
+          .trace(feature.asPolygonBorder());
 
       return builder.build();
     }
@@ -305,16 +277,15 @@ public class Fault {
       checkState(dip != null);
       checkState(id != null);
       checkState(name != null);
-      checkState(slipRates != null);
+      checkState(slipRateTree != null);
       checkState(trace != null);
-      checkState(width != null);
     }
 
   }
 
   /* Get slip rates from GeoJSON property */
   private static List<SlipRate> getSlipRates(Properties properties) {
-    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(SLIP_MODELS));
+    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(SLIP_RATE_TREE));
     return ImmutableList.copyOf(GSON.fromJson(slipRatesEl, SlipRate[].class));
   }
 
