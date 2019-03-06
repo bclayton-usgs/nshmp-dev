@@ -1,8 +1,8 @@
 package gov.usgs.earthquake.nshmp.postgres;
 
 import static gov.usgs.earthquake.nshmp.postgres.Util.POSTGRES;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.BIRD_RAKE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.BIRD_RATE;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.CFAULT_ID;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DEPTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DIP;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.FAULT_TRACE;
@@ -11,11 +11,12 @@ import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.GEO_RATE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ID;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.NAME;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.PRIMARY_STATE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATE_TREE;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.PROBABILITY_OF_ACTIVITY;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.RATE_MODELS;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.STATE_ABBREV;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.UPPER_DEPTH;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.Q_FAULT_ID;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.WKT_FAULT_TRACE;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RAKE;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.ZENG_RATE;
 
 import java.io.IOException;
@@ -119,6 +120,7 @@ public class FaultExporter {
 
   /* Query fault database */
   private static ResultSet queryFault(PostgreSQL postgres, String stateAbbrev) throws SQLException {
+    
     return PostgreSQL.queryBuilder()
         .select(getSQLSelectFields())
         .from(postgres.table())
@@ -132,18 +134,18 @@ public class FaultExporter {
     List<String> selectFields = new ArrayList<>();
 
     selectFields.add(BIRD_RATE);
-    selectFields.add(BIRD_RAKE);
+    selectFields.add(CFAULT_ID);
     selectFields.add(DIP);
     selectFields.add(GEO_RATE);
     selectFields.add(GEO_RAKE);
     selectFields.add(ID);
     selectFields.add(NAME);
     selectFields.add(PRIMARY_STATE);
+    selectFields.add(PROBABILITY_OF_ACTIVITY);
     selectFields.add(STATE_ABBREV);
     selectFields.add(UPPER_DEPTH);
     selectFields.add(WKT_FAULT_TRACE);
     selectFields.add(ZENG_RATE);
-    selectFields.add(ZENG_RAKE);
 
     return selectFields.stream().collect(Collectors.joining(","));
   }
@@ -172,7 +174,8 @@ public class FaultExporter {
         .put(NAME, result.getString(NAME))
         .put(DEPTH, result.getDouble(UPPER_DEPTH))
         .put(DIP, result.getDouble(DIP))
-        .put(SLIP_RATE_TREE, getSlipRates(result))
+        .put(Q_FAULT_ID, result.getString(CFAULT_ID))
+        .put(RATE_MODELS, getSlipRates(result))
         .build();
 
     return Feature.lineString(trace)
@@ -182,12 +185,20 @@ public class FaultExporter {
   }
 
   /* Create the slip rates */
-  private static List<SlipRate> getSlipRates(ResultSet result) throws SQLException {
-    return SlipRate.builder()
-        .bird(result.getDouble(BIRD_RATE), result.getDouble(BIRD_RAKE))
-        .geo(result.getDouble(GEO_RATE), result.getDouble(GEO_RAKE))
-        .zeng(result.getDouble(ZENG_RATE), result.getDouble(ZENG_RAKE))
-        .build();
+  private static List<RateModel> getSlipRates(ResultSet result) throws SQLException {
+    double probOfActivity = result.getDouble(PROBABILITY_OF_ACTIVITY);
+    
+    if (probOfActivity < 1) {
+      return RateModel.builder()
+          .aPriori(probOfActivity, result.getDouble(GEO_RAKE))
+          .build();
+    } else {
+      return RateModel.builder()
+          .bird(result.getDouble(BIRD_RATE), result.getDouble(GEO_RAKE))
+          .geo(result.getDouble(GEO_RATE), result.getDouble(GEO_RAKE))
+          .zeng(result.getDouble(ZENG_RATE), result.getDouble(GEO_RAKE))
+          .build();
+    }
   }
 
   /* Convert WKT to location list */
