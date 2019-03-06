@@ -11,7 +11,7 @@ import static gov.usgs.earthquake.nshmp.internal.TextUtils.validateName;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DEPTH;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.DIP;
 import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.NAME;
-import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.SLIP_RATE_TREE;
+import static gov.usgs.earthquake.nshmp.postgres.Util.Keys.RATE_MODELS;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class Fault {
   private final String name;
   private final int id;
   private final LocationList trace;
-  private final List<SlipRate> slipRateTree;
+  private final List<RateModel> slipRateTree;
   private final double depth;
   private final double dip;
 
@@ -66,7 +66,7 @@ public class Fault {
   }
 
   /** Fault slip rates */
-  public List<SlipRate> slipRateTree() {
+  public List<RateModel> slipRateTree() {
     return slipRateTree;
   }
 
@@ -118,10 +118,10 @@ public class Fault {
     }
 
     @Override
-    Builder slipRateTree(List<SlipRate> slipRateTree) {
+    Builder slipRateTree(List<RateModel> slipRateTree) {
       checkNotNull(slipRateTree);
 
-      for (SlipRate slipRate : slipRateTree) {
+      for (RateModel slipRate : slipRateTree) {
         checkRake(slipRate.rake());
         // checkWeight(slipRate.rate()); // How do we check rate?
       }
@@ -146,7 +146,7 @@ public class Fault {
 
       builder.depth(properties.getDouble(DEPTH))
           .dip(properties.getDouble(DIP))
-          .id(feature.idInt())
+          .id(feature.idAsInt())
           .name(properties.getString(NAME))
           .slipRateTree(getSlipRates(properties))
           .trace(feature.asPolygonBorder());
@@ -167,7 +167,7 @@ public class Fault {
     private String name;
     private Integer id;
     private LocationList trace;
-    private ImmutableList<SlipRate> slipRateTree;
+    private ImmutableList<RateModel> slipRateTree;
     private Double depth;
     private Double dip;
 
@@ -228,7 +228,7 @@ public class Fault {
      * @param slipRates Fault slip rates
      * @return this builder
      */
-    UncheckedBuilder slipRateTree(List<SlipRate> slipRateTree) {
+    UncheckedBuilder slipRateTree(List<RateModel> slipRateTree) {
       this.slipRateTree = ImmutableList.copyOf(slipRateTree);
       return this;
     }
@@ -263,7 +263,7 @@ public class Fault {
 
       builder.depth(properties.getDouble(DEPTH))
           .dip(properties.getDouble(DIP))
-          .id(feature.idInt())
+          .id(feature.idAsInt())
           .name(properties.getString(NAME))
           .slipRateTree(getSlipRates(properties))
           .trace(feature.asPolygonBorder());
@@ -284,9 +284,9 @@ public class Fault {
   }
 
   /* Get slip rates from GeoJSON property */
-  private static List<SlipRate> getSlipRates(Properties properties) {
-    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(SLIP_RATE_TREE));
-    return ImmutableList.copyOf(GSON.fromJson(slipRatesEl, SlipRate[].class));
+  private static List<RateModel> getSlipRates(Properties properties) {
+    JsonElement slipRatesEl = GSON.toJsonTree(properties.get(RATE_MODELS));
+    return ImmutableList.copyOf(GSON.fromJson(slipRatesEl, RateModel[].class));
   }
 
 }
