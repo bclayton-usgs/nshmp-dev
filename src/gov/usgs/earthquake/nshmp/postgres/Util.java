@@ -34,25 +34,26 @@ class Util {
   static class Keys {
     /* Fault database query keys */
     static final String BIRD_RATE = "bird_displacement_rate";
-    static final String BIRD_RAKE = "bird_rake";
     static final String CALC_WIDTH = "calc_width";
+    static final String CFAULT_ID = "cfault_id";
     static final String DIP = "dip";
     static final String FAULT_TRACE = "fault_trace";
     static final String GEO_RATE = "geo_displacement_rate";
     static final String GEO_RAKE = "geo_rake";
-    static final String ID = "cfault_or";
+    static final String ID = "id";
     static final String NAME = "name";
     static final String PRIMARY_STATE = "primary_state";
+    static final String PROBABILITY_OF_ACTIVITY = "probability_of_activity";
     static final String STATE_ABBREV = "state_abbrev";
     static final String UPPER_DEPTH = "upper_depth";
     static final String WKT_FAULT_TRACE = "ST_AsText(" + FAULT_TRACE + ") as " + FAULT_TRACE;
     static final String ZENG_RATE = "zeng_displacement_rate";
-    static final String ZENG_RAKE = "zeng_rake";
 
     /* GeoJSON property keys */
     static final String DEPTH = "depth";
     static final String RAKE = "rake";
-    static final String SLIP_RATE_TREE = "slipRateTree";
+    static final String RATE_MODELS = "rateModels";
+    static final String Q_FAULT_ID = "qFaultId";
 
     /* PostgreSQL keys */
     static final String DATABASE = "database";

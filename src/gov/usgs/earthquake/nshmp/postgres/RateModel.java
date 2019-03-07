@@ -12,18 +12,20 @@ import com.google.common.collect.ImmutableList;
  * 
  * @author Brandon Clayton
  */
-public class SlipRate {
+public class RateModel {
 
   /*
    * TODO How do we check rate?
    */
 
   private SlipModel id;
+  private RateType type;
   private double rake;
   private double value;
 
-  private SlipRate(SlipModel id, double value, double rake) {
+  private RateModel(SlipModel id, RateType type, double value, double rake) {
     this.id = id;
+    this.type = type;
     this.rake = checkRake(rake);
     this.value = value;
   }
@@ -36,6 +38,11 @@ public class SlipRate {
   /** The rake in degrees */
   public double rake() {
     return rake;
+  }
+ 
+  /** The rate type */
+  public RateType type() {
+    return type;
   }
 
   /** The slip rate */
@@ -51,63 +58,71 @@ public class SlipRate {
   /** Slip rate builder for Bird, Geo, and Zeng. */
   static class Builder {
 
-    private SlipRate bird;
-    private SlipRate geo;
-    private SlipRate zeng;
+    private ImmutableList.Builder<RateModel> rateModels;
 
-    private Builder() {}
+    private Builder() {
+      rateModels = ImmutableList.builder();
+    }
+    
+    /**
+     * Set the probability of activity rate.
+     * 
+     * @param rate The rate
+     * @param rake The rake in degrees
+     * @return this builder
+     */
+    Builder aPriori(double rate, double rake) {
+      rateModels.add(new RateModel(SlipModel.A_PRIORI, RateType.PROBABILITY_OF_ACTIVITY, rate, rake));
+      return this;
+    }
 
     /**
      * Set the Bird slip rate.
      * 
-     * @param rake The Bird rake in degrees
      * @param rate The Bird slip rate
+     * @param rake The Bird rake in degrees
      * @return this builder
      */
-    Builder bird(double rake, double rate) {
-      bird = new SlipRate(SlipModel.BIRD, rake, rate);
+    Builder bird(double rate, double rake) {
+      rateModels.add(new RateModel(SlipModel.BIRD, RateType.DISPLACEMENT, rate, rake));
       return this;
     }
 
     /**
      * Set the Geo slip rate.
      * 
-     * @param rake The Geo rake in degrees
      * @param rate The Geo slip rate
+     * @param rake The Geo rake in degrees
      * @return this builder
      */
-    Builder geo(double rake, double rate) {
-      geo = new SlipRate(SlipModel.GEO, rake, rate);
+    Builder geo(double rate, double rake) {
+      rateModels.add(new RateModel(SlipModel.GEO, RateType.DISPLACEMENT, rate, rake));
       return this;
     }
 
     /**
      * Set the Zeng slip rate.
      * 
-     * @param rake The Zeng rake in degrees
      * @param rate The Zeng slip rate
+     * @param rake The Zeng rake in degrees
      * @return this builder
      */
-    Builder zeng(double rake, double rate) {
-      zeng = new SlipRate(SlipModel.ZENG, rake, rate);
+    Builder zeng(double rate, double rake) {
+      rateModels.add(new RateModel(SlipModel.ZENG, RateType.DISPLACEMENT, rate, rake));
       return this;
     }
 
-    /** Return a new list for the Bird, Geo, and Zeng slip rates. */
-    List<SlipRate> build() {
-      validateState();
-      return ImmutableList.of(bird, geo, zeng);
-    }
-
-    private void validateState() {
-      checkState(bird != null);
-      checkState(geo != null);
-      checkState(zeng != null);
+    /** Return a new list of RateModel */
+    List<RateModel> build() {
+      List<RateModel> rateModels = this.rateModels.build();
+      checkState(!rateModels.isEmpty());
+      return rateModels;
     }
 
   }
 
   private static enum SlipModel {
+    A_PRIORI,
     BIRD,
     GEO,
     ZENG;
