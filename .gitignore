@@ -2,6 +2,7 @@
 .project
 .settings
 .gradle
+build
 bin
 config.properties
 output/
