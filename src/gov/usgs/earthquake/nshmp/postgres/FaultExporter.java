@@ -63,7 +63,7 @@ public class FaultExporter {
   
   FaultExporter(String table) throws IOException {
     postgres = Util.getPostgres(table);
-    outputPath = Paths.get("output", postgres.table());
+    outputPath = Paths.get("faults", postgres.table());
   }
 
   /**
