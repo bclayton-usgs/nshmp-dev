@@ -1,6 +1,5 @@
 package gov.usgs.earthquake.nshmp.postgres;
 
-import static com.google.common.base.Preconditions.checkState;
 import static gov.usgs.earthquake.nshmp.eq.fault.Faults.checkRake;
 
 import java.util.List;
@@ -20,13 +19,13 @@ public class RateModel {
 
   private SlipModel id;
   private RateType type;
-  private double rake;
-  private double value;
+  private Double rake;
+  private Double value;
 
-  private RateModel(SlipModel id, RateType type, double value, double rake) {
+  private RateModel(SlipModel id, RateType type, Double value, Double rake) {
     this.id = id;
     this.type = type;
-    this.rake = checkRake(rake);
+    this.rake = rake == null ? null : checkRake(rake);
     this.value = value;
   }
 
@@ -39,7 +38,7 @@ public class RateModel {
   public double rake() {
     return rake;
   }
- 
+
   /** The rate type */
   public RateType type() {
     return type;
@@ -63,7 +62,7 @@ public class RateModel {
     private Builder() {
       rateModels = ImmutableList.builder();
     }
-    
+
     /**
      * Set the probability of activity rate.
      * 
@@ -71,7 +70,7 @@ public class RateModel {
      * @param rake The rake in degrees
      * @return this builder
      */
-    Builder aPriori(double rate, double rake) {
+    Builder aPriori(Double rate, Double rake) {
       rateModels.add(new RateModel(SlipModel.A_PRIORI, RateType.PROBABILITY_OF_ACTIVITY, rate, rake));
       return this;
     }
@@ -83,7 +82,7 @@ public class RateModel {
      * @param rake The Bird rake in degrees
      * @return this builder
      */
-    Builder bird(double rate, double rake) {
+    Builder bird(Double rate, Double rake) {
       rateModels.add(new RateModel(SlipModel.BIRD, RateType.DISPLACEMENT, rate, rake));
       return this;
     }
@@ -95,8 +94,20 @@ public class RateModel {
      * @param rake The Geo rake in degrees
      * @return this builder
      */
-    Builder geo(double rate, double rake) {
+    Builder geo(Double rate, Double rake) {
       rateModels.add(new RateModel(SlipModel.GEO, RateType.DISPLACEMENT, rate, rake));
+      return this;
+    }
+
+    /**
+     * Set the slip rate.
+     * 
+     * @param rate The slip rate
+     * @param rake The rake in degrees
+     * @return this builder
+     */
+    Builder slip(Double rate, Double rake) {
+      rateModels.add(new RateModel(SlipModel.GEO, RateType.SLIP, rate, rake));
       return this;
     }
 
@@ -107,16 +118,14 @@ public class RateModel {
      * @param rake The Zeng rake in degrees
      * @return this builder
      */
-    Builder zeng(double rate, double rake) {
+    Builder zeng(Double rate, Double rake) {
       rateModels.add(new RateModel(SlipModel.ZENG, RateType.DISPLACEMENT, rate, rake));
       return this;
     }
 
     /** Return a new list of RateModel */
     List<RateModel> build() {
-      List<RateModel> rateModels = this.rateModels.build();
-      checkState(!rateModels.isEmpty());
-      return rateModels;
+      return rateModels.build();
     }
 
   }
