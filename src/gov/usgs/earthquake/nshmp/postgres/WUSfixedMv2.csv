@@ -1,0 +1,35 @@
+cfault_id,mMax,name
+603abcdef, 7.0,  Beaverhead fault                        
+newwa3,    6.8,  Boulder Creek fault, Kendall scarp      
+574,       7.5,  Devils Mountain fault                   
+1687ab,    7.0,  Dixie Valley fault zone                 
+1690,      7.2,  Fairview fault zone                     
+2358,      6.6,  Hansel Valley fault                     
+656,       7.3,  Hebgen-Red Canyon fault                 
+602abcdef, 7.0,  Lemhi fault                             
+601abcdef, 7.0,  Lost River fault                        
+2321,      7.5,  Northern Sangre de Cristo fault         
+1136abcd,  7.6,  Pleasant Valley fault zone              
+1380abc,   7.5,  Railroad Valley fault zone              
+2053abc,   7.5,  San Andres Mountains fault              
+1508ab,    7.5,  Santa Rosa fault system                 
+570m,      7.2,  Seattle fault zone-middle               
+570n,      7.2,  Seattle fault zone-northern             
+570s,      7.1,  Seattle fault zone-southern             
+997bcd,    7.5,  Sevier/Toroweap fault zone (southern)   
+572,       7.44, Southern Whidbey Island fault-middle    
+572n,      7.42, Southern Whidbey Island fault-northern  
+572s,      7.42, Southern Whidbey Island fault-southern  
+1660,      6.0,  Spanish Springs Peak fault              
+856abcdef, 7.5,  Steens fault zone                       
+1337,      7.5,  Toiyabe Range fault zone                
+827ac,     7.5,  Warner Valley faults (east)             
+1336abcd,  7.5,  Western Toiyabe Range fault zone        
+1718,      7.5,  Ruby Valley fault zone                  
+2054abc,   7.5,  Alamogordo fault                        
+856abcdef, 7.5,  Santa Rosa fault system                 
+2351,      7.4,  Wasatch fault zone                      
+newwa3,    6.8,  Boulder Creek fault, Kendall scarp      
+1148,      7.5,  Shoshone Range fault zone               
+2321,      7.5,  Northern Sangre de Cristo fault         
+
