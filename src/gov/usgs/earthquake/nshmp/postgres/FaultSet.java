@@ -96,7 +96,7 @@ public class FaultSet implements Iterable<Fault> {
      * @param json GeoJSON file path
      */
     public static FaultSet fromGeoJson(String name, int id, Path json) {
-      return fromFeatureCollection(name, id, GeoJson.fromJson(json));
+      return fromFeatureCollection(name, id, GeoJson.from(json).toFeatureCollection());
     }
 
     /**
@@ -187,7 +187,7 @@ public class FaultSet implements Iterable<Fault> {
      * @param json GeoJSON file path
      */
     static FaultSet fromGeoJson(String name, int id, Path json) {
-      return fromFeatureCollection(name, id, GeoJson.fromJson(json));
+      return fromFeatureCollection(name, id, GeoJson.from(json).toFeatureCollection());
     }
 
     /**
