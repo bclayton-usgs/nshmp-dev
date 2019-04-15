@@ -5,5 +5,5 @@
 build
 bin
 config.properties
-faults/
+output
 Scratch*.java
