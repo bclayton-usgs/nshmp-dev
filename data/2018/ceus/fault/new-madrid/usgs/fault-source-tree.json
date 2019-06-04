@@ -1,0 +1,29 @@
+{
+  "faultTree": [
+    {
+      "id": "nmsz-west",
+      "weight": 0.05,
+      "value": "nmsz-west"
+    },
+    {
+      "id": "nmsz-mid-west",
+      "weight": 0.1,
+      "value": "nmsz-mid-west"
+    },
+    {
+      "id": "nmsz-center",
+      "weight": 0.7,
+      "value": "nmsz-west"
+    },
+    {
+      "id": "nmsz-mid-east",
+      "weight": 0.1,
+      "value": "nmsz-west"
+    },
+    {
+      "id": "nmsz-east",
+      "weight": 0.05,
+      "value": "nmsz-west"
+    }
+  ]
+}

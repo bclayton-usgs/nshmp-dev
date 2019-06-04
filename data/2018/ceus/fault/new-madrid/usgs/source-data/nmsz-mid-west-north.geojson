@@ -1,0 +1,20 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-89.193, 37.218],
+      [-89.734, 36.710]
+    ]
+  },
+  "properties": {
+    "name": "USGS New Madrid: Mid-West – North",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 89.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "usgs-mfds-north"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-103.2241, 38.4309],
+      [-103.2393, 38.4020],
+      [-103.2637, 38.3694],
+      [-103.3046, 38.3321],
+      [-103.3631, 38.2979],
+      [-103.4360, 38.2692],
+      [-103.4967, 38.2288],
+      [-103.5699, 38.1596],
+      [-103.5848, 38.1508]
+    ]
+  },
+  "properties": {
+    "name": "USGS Cheraw",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 60.0,
+    "rake": -90.0,
+    "width": 17.3205,
+    "mfdTree": [
+      {
+        "id": "full-rupture",
+        "weight": 0.5,
+        "value": {
+          "type": "SINGLE",
+          "properties": {
+            "m": 7.0,
+            "rate": 0.0001148
+          }
+        }
+      },
+      {
+        "id": "partial-rupture",
+        "weight": 0.5,
+        "value": {
+          "type": "GR",
+          "properties": {
+            "a": 2.14217,
+            "b": 0.95,
+            "mMax": 6.9501
+          }
+        }
+      }
+    ]
+  }
+}

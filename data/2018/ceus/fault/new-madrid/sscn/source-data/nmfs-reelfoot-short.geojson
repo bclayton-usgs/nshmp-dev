@@ -1,0 +1,22 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-89.59054, 36.56625],
+      [-89.43769, 36.46467],
+      [-89.41396, 36.33081],
+      [-89.34903, 36.22347]
+    ]
+  },
+  "properties": {
+    "name": "SSCn New Madrid: Reelfoot Thrust – Short",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 40.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "sscn-mfds-reelfoot"
+  }
+}

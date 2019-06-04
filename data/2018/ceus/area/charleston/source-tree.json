@@ -1,0 +1,14 @@
+[
+  {
+    "id": "regional-zone",
+    "weight": 0.2
+  },
+  {
+    "id": "local-zone",
+    "weight": 0.5
+  },
+  {
+    "id": "narrow-zone",
+    "weight": 0.3
+  }
+]

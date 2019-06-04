@@ -1,0 +1,13 @@
+{
+  "maxDistance": 1000.0,
+  "tree": [
+    {
+      "id": "NGA_EAST_USGS",
+      "weight": 0.667
+    },
+    {
+      "id": "NGA_EAST_USGS_SEEDS",
+      "weight": 0.333
+    }
+  ]
+}

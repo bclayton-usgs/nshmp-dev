@@ -1,0 +1,22 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-88.996, 37.066],
+      [-89.431, 36.663],
+      [-89.341, 36.188],
+      [-90.507, 35.346]
+    ]
+  },
+  "properties": {
+    "name": "USGS New Madrid: Mid-East",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 89.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "usgs-mfds-center-south"
+  }
+}

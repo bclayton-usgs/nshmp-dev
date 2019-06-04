@@ -1,0 +1,21 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-98.63905, 34.84744],
+      [-98.51853, 34.79631],
+      [-98.42549, 34.76286],
+      [-98.36494, 34.73745],
+      [-98.31908, 34.72712],
+      [-98.29991, 34.70879]
+    ]
+  },
+  "properties": {
+    "name": "SSCn Meers",
+    "type": "FAULT",
+    "dip": 89.0,
+    "mfdTree": "tree-ref-or-object"
+  }
+}
