@@ -1,0 +1,49 @@
+{
+  "clusterTree": [
+    {
+      "id": "nmsz-west",
+      "weight": 0.05,
+      "sources": [
+        "nmsz-west-north",
+        "nmsz-west-center",
+        "nmsz-west-south"
+      ]
+    },
+    {
+      "id": "nmsz-mid-west",
+      "weight": 0.1,
+      "sources": [
+        "nmsz-mid-west-north",
+        "nmsz-mid-west-center",
+        "nmsz-mid-west-south"
+      ]
+    },
+    {
+      "id": "nmsz-center",
+      "weight": 0.7,
+      "sources": [
+        "nmsz-center-north",
+        "nmsz-center-center",
+        "nmsz-center-south"
+      ]
+    },
+    {
+      "id": "nmsz-mid-east",
+      "weight": 0.1,
+      "sources": [
+        "nmsz-mid-east-north",
+        "nmsz-mid-east-center",
+        "nmsz-mid-east-south"
+      ]
+    },
+    {
+      "id": "nmsz-east",
+      "weight": 0.05,
+      "sources": [
+        "nmsz-east-north",
+        "nmsz-east-center",
+        "nmsz-east-south"
+      ]
+    }
+  ]
+}

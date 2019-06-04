@@ -1,0 +1,20 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-89.504, 36.241],
+      [-90.614, 35.419]
+    ]
+  },
+  "properties": {
+    "name": "USGS New Madrid: Center – South",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 89.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "usgs-mfds-center-south"
+  }
+}

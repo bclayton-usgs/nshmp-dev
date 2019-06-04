@@ -1,0 +1,16 @@
+{
+  "usgs-mfds-north": [
+    { "id": "M1", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 6.6 }}},
+    { "id": "M2", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 6.9 }}},
+    { "id": "M3", "weight": 0.5, "value": { "type": "SINGLE", "properties": { "m": 7.3 }}},
+    { "id": "M4", "weight": 0.2, "value": { "type": "SINGLE", "properties": { "m": 7.5 }}},
+    { "id": "M5", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 7.8 }}}
+  ],
+  "usgs-mfds-center-south": [
+    { "id": "M1", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 6.8 }}},
+    { "id": "M2", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 7.1 }}},
+    { "id": "M3", "weight": 0.5, "value": { "type": "SINGLE", "properties": { "m": 7.5 }}},
+    { "id": "M4", "weight": 0.2, "value": { "type": "SINGLE", "properties": { "m": 7.7 }}},
+    { "id": "M5", "weight": 0.1, "value": { "type": "SINGLE", "properties": { "m": 8.0 }}}
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "clusters": [
+    {
+      "id": "usgs-nmsz-west",
+      "weight": 0.05,
+      "sources": [
+        "usgs-nmsz-west-center",
+        "usgs-nmsz-west-south"
+      ]
+    },
+    {
+      "id": "usgs-nmsz-mid-west",
+      "weight": 0.1,
+      "sources": [
+        "usgs-nmsz-mid-west-center",
+        "usgs-nmsz-mid-west-south"
+      ]
+    },
+    {
+      "id": "usgs-nmsz-center",
+      "weight": 0.7,
+      "sources": [
+        "usgs-nmsz-center-center",
+        "usgs-nmsz-center-south"
+      ]
+    },
+    {
+      "id": "usgs-nmsz-mid-east",
+      "weight": 0.1,
+      "sources": [
+        "usgs-nmsz-mid-east-center",
+        "usgs-nmsz-mid-east-south"
+      ]
+    },
+    {
+      "id": "usgs-nmsz-east",
+      "weight": 0.05,
+      "sources": [
+        "usgs-nmsz-east-center",
+        "usgs-nmsz-east-south"
+      ]
+    }
+  ]
+}

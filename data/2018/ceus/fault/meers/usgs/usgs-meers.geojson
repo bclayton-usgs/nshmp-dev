@@ -1,0 +1,31 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-98.63905, 34.84744],
+      [-98.39988, 34.75040],
+      [-98.32957, 34.73318],
+      [-98.29007, 34.71162]
+    ]
+  },
+  "properties": {
+    "name": "USGS Meers",
+    "type": "FAULT",
+    "dip": 89.0,
+    "mfdTree": [
+      {
+        "id": "full-rupture",
+        "weight": 1.0,
+        "value": {
+          "type": "SINGLE",
+          "properties": {
+            "m": 7.0,
+            "rate": 0.000222
+          }
+        }
+      }
+    ]
+  }
+}

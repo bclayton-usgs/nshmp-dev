@@ -1,0 +1,14 @@
+{
+  "faultTree": [
+    {
+      "id": "nmfs-rfts",
+      "weight": 0.7,
+      "source": "nmfs-reelfoot-short"
+    },
+    {
+      "id": "nmfs-rftl",
+      "weight": 0.3,
+      "source": "nmfs-reelfoot-extended"
+    }
+  ]
+}

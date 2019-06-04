@@ -1,0 +1,20 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-89.62092, 36.56530],
+      [-89.28820, 36.99460]
+    ]
+  },
+  "properties": {
+    "name": "SSCn New Madrid: North – Short",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 90.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "sscn-mfds-north"
+  }
+}

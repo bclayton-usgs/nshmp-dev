@@ -1,0 +1,22 @@
+{
+  "type": "Feature",
+  "id": -1,
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-90.37367, 35.55509],
+      [-90.09724, 35.80379],
+      [-89.75166, 36.43141],
+      [-89.62092, 36.56530]
+    ]
+  },
+  "properties": {
+    "name": "SSCn New Madrid: South – Boothill Lineament",
+    "type": "FAULT",
+    "depth": 10.0,
+    "dip": 90.0,
+    "rake": 0.0,
+    "width": 15.0,
+    "mfdTree": "sscn-mfds-south"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "clusterTree": [
+    {
+      "id": "nmfs-babl-rfts-nmns",
+      "weight": 0.294,
+      "sources": [
+        "nmfs-south-bootheel",
+        "nmfs-north-short",
+        "nmfs-reelfoot-short"
+      ]
+    },
+    {
+      "id": "nmfs-babl-rftl-nmns",
+      "weight": 0.126,
+      "sources": [
+        "nmfs-south-bootheel",
+        "nmfs-north-short",
+        "nmfs-reelfoot-extended"
+      ]
+    },
+    {
+      "id": "nmfs-babl-rfts-nmnl",
+      "weight": 0.126,
+      "sources": [
+        "nmfs-south-bootheel",
+        "nmfs-north-extended",
+        "nmfs-reelfoot-short"
+      ]
+    },
+    {
+      "id": "nmfs-babl-rftl-nmnl",
+      "weight": 0.054,
+      "sources": [
+        "nmfs-south-bootheel",
+        "nmfs-north-extended",
+        "nmfs-reelfoot-extended"
+      ]
+    },
+    {
+      "id": "nmfs-babfz-rfts-nmns",
+      "weight": 0.196,
+      "sources": [
+        "nmfs-south-blytheville",
+        "nmfs-north-short",
+        "nmfs-reelfoot-short"
+      ]
+    },
+    {
+      "id": "nmfs-babfz-rftl-nmns",
+      "weight": 0.084,
+      "sources": [
+        "nmfs-south-blytheville",
+        "nmfs-north-short",
+        "nmfs-reelfoot-extended"
+      ]
+    },
+    {
+      "id": "nmfs-babfz-rfts-nmnl",
+      "weight": 0.084,
+      "sources": [
+        "nmfs-south-blytheville",
+        "nmfs-north-extended",
+        "nmfs-reelfoot-short"
+      ]
+    },
+    {
+      "id": "nmfs-babfz-rftl-nmnl",
+      "weight": 0.036,
+      "sources": [
+        "nmfs-south-blytheville",
+        "nmfs-north-extended",
+        "nmfs-reelfoot-extended"
+      ]
+    }
+  ]
+}

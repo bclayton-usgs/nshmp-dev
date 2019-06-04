@@ -1,0 +1,10 @@
+[
+  {
+    "id": "usgs",
+    "weight": 0.5
+  },
+  {
+    "id": "sscn",
+    "weight": 0.5
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "tree": [
+    {
+      "id": "cluster",
+      "weight": 0.8,
+      "value": "cluster-source-tree"
+    },
+    {
+      "id": "fault",
+      "weight": 0.2,
+      "value": "fault-source-tree"
+    }
+  ]
+}

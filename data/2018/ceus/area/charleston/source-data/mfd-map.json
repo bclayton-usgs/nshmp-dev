@@ -1,0 +1,9 @@
+{
+  "charleston": [
+    { "id": "M1", "weight": 0.10, "value": { "type": "SINGLE", "properties": { "m": 6.7 }}},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "properties": { "m": 6.9 }}},
+    { "id": "M3", "weight": 0.30, "value": { "type": "SINGLE", "properties": { "m": 7.1 }}},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "properties": { "m": 7.3 }}},
+    { "id": "M5", "weight": 0.10, "value": { "type": "SINGLE", "properties": { "m": 7.5 }}}
+  ]
+}
